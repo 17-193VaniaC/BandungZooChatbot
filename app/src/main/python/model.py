@@ -1,28 +1,30 @@
+from firebase import firebase
 import tensorflow as tf
 import tensorflow_hub as tfhub
 import numpy as np
-from os.path import dirname, join
-#filename = join("src/main/use_lite.tar.gz", "use_lite.tar.gz")
+from sklearn.metrics.pairwise import cosine_similarity
 
-model = tfhub.load("https://tfhub.dev/google/universal-sentence-encoder-lite/2")
-#model ya modelnya
-batch_size = 10 #banyakbatch
-embeddings = []  #vector embedding pertanyaan
-questions_embeddings = []
 
-def initial(array_pertanyaan):
-    pertanyaanList = np.array(array_pertanyaan)
-    print(array_pertanyaan)
-    for i in range(0, len(pertanyaanList), batch_size):
-        embeddings.append(model(pertanyaanList[i:i+batch_size]))
-    questions_embeddings = tf.concat(embeddings, axis=0)
-    return questions_embeddings
-#questions_embeddings itu vector embedding pertanyaan dalam bentuk tf
-def getIndex(question, qe):
-    embedding = model([question,])#dapet vector pertanyaan dari user
-    scores = qe @ tf.transpose(embedding)
-    if(np.amax(tf.squeeze(scores).numpy())<0.5):
-        return 10000
-    return np.argmax(tf.squeeze(scores).numpy())
-    #np.argmax return index dari array yang punya nilai paling besar
-    #
+firebase = firebase.FirebaseApplication("https://bandungzoochatbot-default-rtdb.firebaseio.com/", None)
+brainfile_data = firebase.get('/Brainfile/', '')
+pertanyaan = []
+jawaban = []
+for data in brainfile_data:
+  qna = data
+  if(type(qna) is dict):
+    pertanyaan.append(qna.get('pertanyaan'))
+    jawaban.append(qna.get('jawaban'))
+
+model = tfhub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
+
+batch_size = 10
+embeddings = []
+qe = []
+for i in range(0, len(pertanyaan), batch_size):
+    embeddings.append(model(pertanyaan[i:i+batch_size]))
+questions_embeddings = tf.concat(embeddings, axis=0)
+
+def getAnswer(question: str) -> str:
+    embedding = model([question,])
+    cosine = cosine_similarity(embedding, questions_embeddings)
+    return jawaban[np.argmax(tf.squeeze(cosine).numpy())]

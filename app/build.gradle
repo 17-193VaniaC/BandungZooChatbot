@@ -28,6 +28,8 @@ android {
         python {
             buildPython "C:/Users/asus/AppData/Local/Programs/Python/Python38/python.exe"
             pip{
+                install "requests"
+                install "git+https://github.com/ozgur/python-firebase"
                 install "googletrans==3.1.0a0"
                 install "tensorflow"
                 install "tensorflow_hub"

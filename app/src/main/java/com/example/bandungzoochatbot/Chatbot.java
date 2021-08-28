@@ -74,8 +74,8 @@ public class Chatbot extends AppCompatActivity {
     List<Brainfile> messageList;
     List<Fasilitas> fasilitasList;
     List<Koleksi> koleksiList;
-    List<String> pertanyaanList;
-    List<String> jawabanList;
+//    List<String> pertanyaanList;
+//    List<String> jawabanList;
     List<String> namafasilitasList;
 
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -105,8 +105,8 @@ public class Chatbot extends AppCompatActivity {
         fasilitasList = new ArrayList<>();
         koleksiList = new ArrayList<>();
         namafasilitasList = new ArrayList<>();
-        pertanyaanList = new ArrayList<>();
-        jawabanList = new ArrayList<>();
+//        pertanyaanList = new ArrayList<>();
+//        jawabanList = new ArrayList<>();
 
         btnSend = findViewById(R.id.btnSend);
         btnMap = findViewById(R.id.btnMap);
@@ -121,7 +121,7 @@ public class Chatbot extends AppCompatActivity {
 
         // Connect to firebase
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Brainfile");
+//        DatabaseReference myRef = database.getReference("Brainfile");
         DatabaseReference myRefFasilitas = database.getReference("Fasilitas");
         DatabaseReference mtRefKoleksi = database.getReference("Koleksi");
 
@@ -143,41 +143,41 @@ public class Chatbot extends AppCompatActivity {
         PyObject pyModel = py.getModule("model");
 
         //Get QnA data
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                messageList.clear();
-                pertanyaanList.clear();
-                jawabanList.clear();
-
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    Brainfile message = data.getValue(Brainfile.class);
-                    String pertanyaan = data.child("pertanyaan").getValue(String.class);
-                    String jawaban = data.child("jawaban").getValue(String.class);
-
-                    messageList.add(message);
-                    pertanyaanList.add(pertanyaan);
-                    jawabanList.add(jawaban);
-
-                    Log.i("PERTANYAAN", pertanyaanList.get(0));
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Failed to read value
-                Log.d("message", "Failed to read value.", error.toException());
-            }
-        });
+//        myRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                messageList.clear();
+//                pertanyaanList.clear();
+//                jawabanList.clear();
+//
+//                for (DataSnapshot data : dataSnapshot.getChildren()) {
+//                    Brainfile message = data.getValue(Brainfile.class);
+//                    String pertanyaan = data.child("pertanyaan").getValue(String.class);
+//                    String jawaban = data.child("jawaban").getValue(String.class);
+//
+//                    messageList.add(message);
+//                    pertanyaanList.add(pertanyaan);
+//                    jawabanList.add(jawaban);
+//
+//                    Log.i("PERTANYAAN", pertanyaanList.get(0));
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                // Failed to read value
+//                Log.d("message", "Failed to read value.", error.toException());
+//            }
+//        });
 
         //inisial model
-        String[] p = {};
-        for (int i=0; i<pertanyaanList.size();i++){
-            p[i] = String.valueOf(pertanyaanList.get(i));
-        }
+//        String[] p = {};
+//        for (int i=0; i<pertanyaanList.size();i++){
+//            p[i] = String.valueOf(pertanyaanList.get(i));
+//        }
 //        String[] array_pertanyaan = messageList.toArray(new String[0]);
 
-        Log.i("isi string", String.valueOf(pertanyaanList.size()));
+//        Log.i("isi string", String.valueOf(pertanyaanList.size()));
 //        Log.i("isi string", pertanyaanList.get(0));
 //        PyObject pyquestion = pyModel.callAttr("initial", p);
 
@@ -254,7 +254,10 @@ public class Chatbot extends AppCompatActivity {
                     if (IS_CONNECTED){
                         PyObject pyObj = pyTrans.callAttr("trans_en", message);
                         String query = pyObj.toString();
-                        botsReply(pyObj.toString(), false); //sampai sini bisa
+                        PyObject pyObj_answer = pyModel.callAttr("getAnswer", query);
+                        String s_answer = pyObj_answer.toString();
+                        botsReply(query, false);
+                        botsReply(s_answer, false); //sampai sini bisa
 //                    PyObject pyIndex = pyModel.callAttr("getIndex", query, pyquestion);
 //                    botsReply(getAnswer(pyIndex.toInt(), jawabanList), false);
                     }
@@ -303,10 +306,7 @@ public class Chatbot extends AppCompatActivity {
     }
 
     private Boolean isAskingLocation(String message){
-        if(message.toLowerCase().contains("terdekat")){
-            return true;
-        }
-        return false;
+        return message.toLowerCase().contains("terdekat");
     }
 
     private Boolean isExistinDatabase(List<Fasilitas> fasilitas, String query){

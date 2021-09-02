@@ -306,7 +306,10 @@ public class Chatbot extends AppCompatActivity {
     }
 
     private Boolean isAskingLocation(String message){
-        return message.toLowerCase().contains("terdekat");
+        if(message.toLowerCase().contains("terdekat")){
+            return true;
+        }
+        return false;
     }
 
     private Boolean isExistinDatabase(List<Fasilitas> fasilitas, String query){

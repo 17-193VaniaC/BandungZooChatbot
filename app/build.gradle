@@ -32,7 +32,6 @@ android {
                 install "git+https://github.com/ozgur/python-firebase"
                 install "googletrans==3.1.0a0"
                 install "tensorflow"
-                install "tensorflow_hub"
             }
         }
     }
